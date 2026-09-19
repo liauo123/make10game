@@ -46,6 +46,13 @@
       flex-direction: column;
     }
 
+    .app.pk-active {
+      width: 100%;
+      max-width: none;
+      padding-left: clamp(10px, 1.5vw, 24px);
+      padding-right: clamp(10px, 1.5vw, 24px);
+    }
+
     .topbar {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -289,6 +296,8 @@
     .mode-btn:active { transform: translateY(4px); box-shadow: 0 3px 0 rgba(70,49,143,.3); }
     .mode-btn.basic { background: linear-gradient(145deg, #6fcb8e, #39a96d); }
     .mode-btn.advanced { background: linear-gradient(145deg, #9677ef, #694acb); }
+    .mode-btn.pk-basic { background: linear-gradient(145deg, #4fb9ed, #247fc5); }
+    .mode-btn.pk-advanced { background: linear-gradient(145deg, #ff8a68, #e65565); }
     .mode-icon { display: block; margin-bottom: 7px; font-size: 42px; }
     .mode-name { display: block; font-size: 24px; }
     .mode-desc { display: block; margin-top: 6px; font-size: 14px; line-height: 1.45; opacity: .95; }
@@ -304,6 +313,194 @@
       cursor: pointer;
       box-shadow: 0 6px 0 #d8cff8;
     }
+
+    .hidden { display: none !important; }
+
+    .pk-panel {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 46px minmax(0, 1fr);
+      gap: 8px;
+      position: relative;
+    }
+    .pk-player {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      padding: clamp(8px, 1.5vh, 14px);
+      border: 4px solid rgba(255,255,255,.95);
+      border-radius: 26px;
+      background: rgba(255,255,255,.86);
+      box-shadow: 0 8px 0 rgba(72,54,145,.14), 0 12px 24px rgba(72,54,145,.13);
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+      gap: clamp(5px, 1vh, 9px);
+      overflow: hidden;
+      transition: filter .45s ease, opacity .45s ease, transform .45s ease;
+    }
+    .pk-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 4px 8px;
+      font-weight: 950;
+    }
+    .pk-name { font-size: clamp(15px, 2vw, 22px); color: var(--purple-dark); }
+    .pk-progress { font-size: clamp(13px, 1.7vw, 18px); }
+    .pk-tries { grid-column: 1 / -1; color: #d64e61; letter-spacing: 2px; font-size: 15px; }
+    .pk-equation {
+      min-height: 30px;
+      display: grid;
+      place-items: center;
+      padding: 4px 6px;
+      border-radius: 13px;
+      background: #fff1a8;
+      color: #725300;
+      font-weight: 950;
+      font-size: clamp(15px, 2vw, 21px);
+      text-align: center;
+    }
+    .pk-equation.empty { visibility: hidden; }
+    .pk-cards {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+      gap: clamp(5px, .9vh, 9px);
+    }
+    .pk-card {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      border: 3px solid #fff;
+      border-radius: clamp(10px, 1.5vw, 18px);
+      background: var(--card-color, #ff817c);
+      color: #fff;
+      font-size: clamp(25px, 5vh, 52px);
+      font-weight: 950;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 5px 0 var(--card-shadow, #ce5b5c);
+      touch-action: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pk-card.selected {
+      z-index: 2;
+      outline: 6px solid #ff243f;
+      outline-offset: 1px;
+      box-shadow: 0 5px 0 var(--card-shadow), 0 0 0 3px #fff, 0 0 16px rgba(255,36,63,.7);
+    }
+    .pk-card.correct { outline: 6px solid #38d987; animation: correctPulse .55s ease infinite alternate; }
+    .pk-card.wrong { animation: shake .4s ease; filter: saturate(.35); }
+    .pk-message {
+      min-height: 28px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--purple-dark);
+      font-size: clamp(13px, 1.6vw, 17px);
+      font-weight: 950;
+    }
+    .pk-confirm {
+      display: none;
+      justify-self: center;
+      border: 0;
+      border-radius: 13px;
+      padding: 7px 16px;
+      background: var(--green);
+      color: #fff;
+      font-weight: 950;
+      box-shadow: 0 4px 0 #238653;
+      cursor: pointer;
+    }
+    .pk-confirm.show { display: block; }
+    .pk-confirm:disabled { opacity: .45; cursor: not-allowed; }
+    .pk-divider { position: relative; display: grid; place-items: center; }
+    .pk-divider::before {
+      content: "";
+      position: absolute;
+      top: 2%;
+      bottom: 2%;
+      left: 50%;
+      width: 5px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: linear-gradient(#7557e8, #ff6c75);
+    }
+    .pk-divider span {
+      z-index: 1;
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      background: #ffcf4f;
+      color: #6a3c00;
+      font-weight: 1000;
+      box-shadow: 0 5px 0 rgba(108,67,0,.18);
+    }
+    .pk-player.loser { filter: brightness(.32) saturate(.35); pointer-events: none; }
+    .pk-player.winner { transform: scale(1.015); box-shadow: 0 0 0 7px #ffd54f, 0 0 38px rgba(255,197,50,.8); }
+    .pk-winner-card {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      z-index: 8;
+      transform: translate(-50%, -50%);
+      width: min(88%, 330px);
+      padding: 20px 12px;
+      border: 5px solid #fff;
+      border-radius: 24px;
+      background: linear-gradient(145deg, #ffe66f, #ff9a68);
+      color: #693a00;
+      text-align: center;
+      font-size: clamp(25px, 4vw, 42px);
+      font-weight: 1000;
+      box-shadow: 0 15px 40px rgba(95,52,0,.35);
+      animation: winnerPop .9s ease both, winnerGlow 1s ease-in-out .9s infinite alternate;
+    }
+    .pk-countdown {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      background: rgba(48,34,102,.65);
+      backdrop-filter: blur(5px);
+    }
+    .pk-countdown-number {
+      width: clamp(140px, 24vw, 230px);
+      height: clamp(140px, 24vw, 230px);
+      display: grid;
+      place-items: center;
+      border: 9px solid #fff;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #8b6df0, #ff7979);
+      color: #fff;
+      font-size: clamp(72px, 14vw, 130px);
+      font-weight: 1000;
+      box-shadow: 0 18px 70px rgba(35,20,90,.5);
+      animation: countdownPop .9s ease infinite;
+    }
+    .pk-countdown-number.start {
+      width: auto;
+      height: auto;
+      min-width: min(72vw, 620px);
+      padding: clamp(22px, 4vh, 42px) clamp(40px, 8vw, 100px);
+      border-color: #ffd4c8;
+      border-radius: 34px;
+      background: linear-gradient(145deg, #fff8f2, #ffe4d8);
+      color: #ff846d;
+      font-size: clamp(72px, 12vw, 150px);
+      letter-spacing: .12em;
+      line-height: 1;
+      white-space: nowrap;
+      text-indent: .12em;
+      box-shadow: 0 18px 70px rgba(255,132,109,.45);
+    }
+    @keyframes countdownPop { 0% { transform: scale(.72); opacity: .55; } 55% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
 
     .celebrate {
       position: fixed;
@@ -342,6 +539,8 @@
     @keyframes correctPulse { to { transform: translateY(-7px) scale(1.08); filter: brightness(1.08); } }
     @keyframes pop { from { opacity: 0; transform: scale(.75); } }
     @keyframes cheerPop { 0% { opacity: 0; transform: scale(.5) rotate(-5deg); } 35% { opacity: 1; transform: scale(1.1) rotate(3deg); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.1); } }
+    @keyframes winnerPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.5) rotate(-6deg); } 65% { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(2deg); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    @keyframes winnerGlow { to { box-shadow: 0 15px 46px rgba(255,159,28,.75); } }
     @keyframes fall { to { top: 110%; transform: rotate(720deg); } }
 
     @media (max-width: 560px) {
@@ -355,10 +554,17 @@
       .equation { min-width: 105px; padding: 8px; }
       .cards { gap: 10px; }
       .card { min-height: 0; border-width: 3px; box-shadow: 0 6px 0 var(--card-shadow), 0 9px 16px rgba(55,45,100,.13); }
-      .mode-grid { grid-template-columns: 1fr; gap: 12px; }
-      .mode-btn { min-height: 105px; padding: 12px; }
+      .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .mode-btn { min-height: 98px; padding: 10px 6px; }
       .mode-icon { display: inline-block; margin: 0 8px 0 0; font-size: 30px; vertical-align: middle; }
-      .mode-name { display: inline-block; font-size: 22px; vertical-align: middle; }
+      .mode-name { display: inline-block; font-size: 18px; vertical-align: middle; }
+      .mode-desc { font-size: 12px; }
+      .pk-panel { grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); gap: 3px; }
+      .pk-player { padding: 6px 4px; border-width: 3px; border-radius: 17px; }
+      .pk-name { font-size: 13px; }
+      .pk-progress, .pk-tries { font-size: 11px; }
+      .pk-card { font-size: clamp(23px, 5vh, 40px); border-radius: 10px; }
+      .pk-divider span { width: 30px; height: 30px; border-width: 3px; font-size: 12px; }
     }
 
     @media (max-height: 700px) {
@@ -394,12 +600,12 @@
         <div><h1>數字合成 10</h1><p class="subtitle" id="subtitle">找出兩張相加等於 10 的牌！</p></div>
       </div>
       <div class="top-actions">
-        <div class="score-pill">⭐ <span id="score">0</span> 分</div>
+        <div class="score-pill" id="scorePill">⭐ <span id="score">0</span> 分</div>
         <button class="top-home-btn" id="topHomeBtn" type="button">🏠 回首頁</button>
       </div>
     </header>
 
-    <section class="panel">
+    <section class="panel" id="singlePanel">
       <div class="status-row">
         <div class="progress-label">第 <span id="questionNo">1</span>／15 題</div>
         <div class="equation" id="equation">？＋？＝10</div>
@@ -412,13 +618,45 @@
       <button class="confirm-btn" id="confirmBtn" type="button" disabled>確定答案 ✓</button>
       <button class="next-btn" id="nextBtn" type="button">下一題 ➜</button>
     </section>
+
+    <section class="pk-panel hidden" id="pkPanel" aria-label="雙人PK賽">
+      <div class="pk-player" id="pkLeft" data-side="left">
+        <div class="pk-head">
+          <span class="pk-name">🔵 左方玩家</span>
+          <span class="pk-progress">第 <b>1</b>／10 題</span>
+          <span class="pk-tries" aria-label="還有三次機會">♥ ♥ ♥</span>
+        </div>
+        <div class="pk-equation"></div>
+        <div class="pk-cards" aria-label="左方數字紙牌區"></div>
+        <div class="pk-message" role="status" aria-live="polite">準備開始！</div>
+        <button class="pk-confirm" type="button" disabled>確定答案 ✓</button>
+      </div>
+
+      <div class="pk-divider" aria-hidden="true"><span>PK</span></div>
+
+      <div class="pk-player" id="pkRight" data-side="right">
+        <div class="pk-head">
+          <span class="pk-name">🔴 右方玩家</span>
+          <span class="pk-progress">第 <b>1</b>／10 題</span>
+          <span class="pk-tries" aria-label="還有三次機會">♥ ♥ ♥</span>
+        </div>
+        <div class="pk-equation"></div>
+        <div class="pk-cards" aria-label="右方數字紙牌區"></div>
+        <div class="pk-message" role="status" aria-live="polite">準備開始！</div>
+        <button class="pk-confirm" type="button" disabled>確定答案 ✓</button>
+      </div>
+
+      <div class="pk-countdown hidden" id="pkCountdown" aria-live="assertive">
+        <div class="pk-countdown-number">5</div>
+      </div>
+    </section>
   </main>
 
   <div class="overlay" id="startOverlay">
     <section class="modal" aria-labelledby="startTitle">
       <div class="modal-icon" aria-hidden="true">🔟</div>
       <h2 id="startTitle">選擇遊戲模式</h2>
-      <p>每個模式共有 15 題，每題有 3 次機會！</p>
+      <p>單人版 15 題、PK 賽 10 題！</p>
       <div class="mode-grid">
         <button class="mode-btn basic" id="basicBtn" type="button">
           <span class="mode-icon" aria-hidden="true">🌱</span>
@@ -429,6 +667,16 @@
           <span class="mode-icon" aria-hidden="true">🚀</span>
           <span class="mode-name">進階版</span>
           <span class="mode-desc">選 3～7 張牌合成 10</span>
+        </button>
+        <button class="mode-btn pk-basic" id="basicPkBtn" type="button">
+          <span class="mode-icon" aria-hidden="true">⚔️</span>
+          <span class="mode-name">基礎版 PK賽</span>
+          <span class="mode-desc">左右競速｜選 2 張牌</span>
+        </button>
+        <button class="mode-btn pk-advanced" id="advancedPkBtn" type="button">
+          <span class="mode-icon" aria-hidden="true">🏁</span>
+          <span class="mode-name">進階版 PK賽</span>
+          <span class="mode-desc">左右競速｜選 3～7 張牌</span>
         </button>
       </div>
     </section>
@@ -474,6 +722,13 @@
       const finishText = document.getElementById('finishText');
       const subtitleEl = document.getElementById('subtitle');
       const instructionEl = document.getElementById('instruction');
+      const appEl = document.querySelector('.app');
+      const singlePanel = document.getElementById('singlePanel');
+      const pkPanel = document.getElementById('pkPanel');
+      const scorePill = document.getElementById('scorePill');
+      const pkCountdown = document.getElementById('pkCountdown');
+      const pkLeft = document.getElementById('pkLeft');
+      const pkRight = document.getElementById('pkRight');
 
       let question = 1;
       let score = 0;
@@ -488,6 +743,13 @@
       let lastTouchAt = 0;
       let mode = 'basic';
       let advancedSchedule = [];
+      let isPK = false;
+      let pkMode = 'basic';
+      let pkQuestions = [];
+      let pkStates = {};
+      let pkRaceOver = false;
+      let pkCountdownTimer = null;
+      let pkTimers = [];
 
       function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -818,9 +1080,342 @@
         playTone(180, .22, 'sawtooth', .13, .12);
       }
 
+      function addPKTimer(callback, delay) {
+        const timer = setTimeout(() => {
+          pkTimers = pkTimers.filter(item => item !== timer);
+          callback();
+        }, delay);
+        pkTimers.push(timer);
+        return timer;
+      }
+
+      function clearPKTimers() {
+        clearInterval(pkCountdownTimer);
+        pkCountdownTimer = null;
+        pkTimers.forEach(clearTimeout);
+        pkTimers = [];
+      }
+
+      function getPKPlayer(side) {
+        return side === 'left' ? pkLeft : pkRight;
+      }
+
+      function buildPKQuestions(selectedMode) {
+        if (selectedMode === 'basic') {
+          answerHistory = [];
+          return Array.from({ length: 10 }, () => {
+            const generated = makeDeck();
+            return { values: [...generated.values], pair: [...generated.pair] };
+          });
+        }
+        return buildAdvancedSchedule().slice(0, 10).map(answer => {
+          const generated = makeAdvancedDeck(answer);
+          return { values: [...generated.values], pair: [...generated.pair] };
+        });
+      }
+
+      function pkAnswerKey(questionData) {
+        return questionData.pair
+          .map(index => questionData.values[index])
+          .sort((a, b) => a - b)
+          .join('+');
+      }
+
+      function updatePKTries(side) {
+        const state = pkStates[side];
+        const tries = getPKPlayer(side).querySelector('.pk-tries');
+        const left = MAX_WRONG - state.wrong;
+        tries.textContent = `${'♥ '.repeat(left)}${'♡ '.repeat(MAX_WRONG - left)}`.trim();
+        tries.setAttribute('aria-label', `還有 ${left} 次機會`);
+      }
+
+      function updatePKEquation(side) {
+        const state = pkStates[side];
+        const player = getPKPlayer(side);
+        const equation = player.querySelector('.pk-equation');
+        if (state.selected.length === 0) {
+          equation.textContent = pkMode === 'basic' ? '？＋？＝10' : '';
+          equation.classList.toggle('empty', pkMode === 'advanced');
+          return;
+        }
+        equation.classList.remove('empty');
+        const values = state.selected.map(index => pkQuestions[side][state.question].values[index]);
+        if (pkMode === 'advanced') {
+          equation.textContent = `${values.join('＋')}＝？`;
+        } else {
+          const total = values.reduce((sum, value) => sum + value, 0);
+          equation.textContent = values.length === 1
+            ? `${values[0]}＋？＝10`
+            : `${values.join('＋')}＝${total}`;
+        }
+      }
+
+      function updatePKConfirm(side) {
+        const state = pkStates[side];
+        const confirm = getPKPlayer(side).querySelector('.pk-confirm');
+        confirm.disabled = pkMode !== 'advanced' || state.locked || pkRaceOver ||
+          state.selected.length < 3 || state.selected.length > 7;
+      }
+
+      function renderPKSide(side, keepLocked = false) {
+        const state = pkStates[side];
+        const player = getPKPlayer(side);
+        const questionData = pkQuestions[side][state.question];
+        state.wrong = 0;
+        state.selected = [];
+        state.locked = keepLocked || pkRaceOver;
+        state.lastTouchAt = 0;
+        player.querySelector('.pk-progress b').textContent = state.question + 1;
+        player.querySelector('.pk-message').textContent = keepLocked ? '準備開始！' : '先選第一張牌吧！';
+        const equation = player.querySelector('.pk-equation');
+        equation.textContent = pkMode === 'basic' ? '？＋？＝10' : '';
+        equation.classList.toggle('empty', pkMode === 'advanced');
+        const confirm = player.querySelector('.pk-confirm');
+        confirm.classList.toggle('show', pkMode === 'advanced');
+        confirm.disabled = true;
+        updatePKTries(side);
+
+        const cards = player.querySelector('.pk-cards');
+        cards.innerHTML = '';
+        questionData.values.forEach((number, index) => {
+          const button = document.createElement('button');
+          const colors = palette[index % palette.length];
+          button.type = 'button';
+          button.className = 'pk-card';
+          button.textContent = number;
+          button.style.setProperty('--card-color', colors[0]);
+          button.style.setProperty('--card-shadow', colors[1]);
+          button.setAttribute('aria-label', `數字 ${number}`);
+          button.addEventListener('pointerdown', event => {
+            if (event.pointerType === 'touch' || event.pointerType === 'pen') {
+              event.preventDefault();
+              state.lastTouchAt = Date.now();
+              selectPKCard(side, index, button);
+            }
+          });
+          button.addEventListener('click', event => {
+            if (event.detail !== 0 && Date.now() - state.lastTouchAt < 700) return;
+            selectPKCard(side, index, button);
+          });
+          cards.appendChild(button);
+        });
+      }
+
+      function selectPKCard(side, index, button) {
+        const state = pkStates[side];
+        if (!state || state.locked || pkRaceOver) return;
+        const number = pkQuestions[side][state.question].values[index];
+        speakNumber(number);
+        if (state.selected.includes(index)) {
+          state.selected = state.selected.filter(item => item !== index);
+          button.classList.remove('selected');
+          updatePKEquation(side);
+          updatePKConfirm(side);
+          getPKPlayer(side).querySelector('.pk-message').textContent = '換一張牌也可以！';
+          playTone(330, .09, 'sine', .14);
+          return;
+        }
+        if (pkMode === 'advanced' && state.selected.length >= 7) {
+          getPKPlayer(side).querySelector('.pk-message').textContent = '最多選 7 張牌！';
+          playWrong();
+          return;
+        }
+        state.selected.push(index);
+        button.classList.add('selected');
+        playTone(520, .09, 'sine', .16);
+        updatePKEquation(side);
+        if (pkMode === 'basic' && state.selected.length === 2) {
+          checkPKAnswer(side);
+          return;
+        }
+        if (pkMode === 'basic') {
+          getPKPlayer(side).querySelector('.pk-message').textContent = '再選第二張牌！';
+        } else {
+          updatePKConfirm(side);
+          getPKPlayer(side).querySelector('.pk-message').textContent = state.selected.length < 3
+            ? `至少再選 ${3 - state.selected.length} 張牌！`
+            : `已選 ${state.selected.length} 張，請按確定！`;
+        }
+      }
+
+      function checkPKAnswer(side) {
+        const state = pkStates[side];
+        if (!state || state.locked || pkRaceOver) return;
+        if (pkMode === 'advanced' && (state.selected.length < 3 || state.selected.length > 7)) {
+          getPKPlayer(side).querySelector('.pk-message').textContent = '請選擇 3～7 張牌！';
+          playWrong();
+          return;
+        }
+        state.locked = true;
+        updatePKConfirm(side);
+        const player = getPKPlayer(side);
+        const cards = player.querySelector('.pk-cards');
+        const questionData = pkQuestions[side][state.question];
+        const values = state.selected.map(index => questionData.values[index]);
+        const total = values.reduce((sum, value) => sum + value, 0);
+        if (pkMode === 'basic') player.querySelector('.pk-equation').textContent = `${values.join('＋')}＝${total}`;
+        const correct = pkMode === 'basic'
+          ? state.selected.length === 2 && total === 10
+          : state.selected.length >= 3 && state.selected.length <= 7 && total === 10;
+
+        if (correct) {
+          state.selected.forEach(index => cards.children[index].classList.add('correct'));
+          player.querySelector('.pk-message').textContent = '答對了！下一題！';
+          playSuccess();
+          addPKTimer(() => advancePK(side), 700);
+          return;
+        }
+
+        state.wrong++;
+        state.selected.forEach(index => cards.children[index].classList.add('wrong'));
+        updatePKTries(side);
+        playWrong();
+        if (state.wrong >= MAX_WRONG) {
+          player.querySelector('.pk-message').textContent = '再試一次，答對才能進入下一題！';
+          addPKTimer(() => {
+            if (pkRaceOver) return;
+            [...cards.children].forEach(card => {
+              card.disabled = false;
+              card.classList.remove('selected', 'wrong');
+            });
+            state.selected = [];
+            state.wrong = 0;
+            state.locked = false;
+            updatePKTries(side);
+            updatePKEquation(side);
+            updatePKConfirm(side);
+            player.querySelector('.pk-message').textContent = '請重新選牌！';
+          }, 750);
+        } else {
+          player.querySelector('.pk-message').textContent = `再想一想，還有 ${MAX_WRONG - state.wrong} 次！`;
+          addPKTimer(() => {
+            if (pkRaceOver) return;
+            state.selected.forEach(index => cards.children[index].classList.remove('selected', 'wrong'));
+            state.selected = [];
+            state.locked = false;
+            updatePKEquation(side);
+            updatePKConfirm(side);
+          }, 600);
+        }
+      }
+
+      function advancePK(side) {
+        if (pkRaceOver) return;
+        const state = pkStates[side];
+        state.question++;
+        if (state.question >= 10) {
+          finishPK(side);
+        } else {
+          renderPKSide(side);
+        }
+      }
+
+      function finishPK(winnerSide) {
+        if (pkRaceOver) return;
+        pkRaceOver = true;
+        const loserSide = winnerSide === 'left' ? 'right' : 'left';
+        Object.values(pkStates).forEach(state => { state.locked = true; });
+        [pkLeft, pkRight].forEach(player => {
+          player.querySelectorAll('button').forEach(button => { button.disabled = true; });
+        });
+        const winner = getPKPlayer(winnerSide);
+        const loser = getPKPlayer(loserSide);
+        winner.classList.add('winner');
+        loser.classList.add('loser');
+        const banner = document.createElement('div');
+        banner.className = 'pk-winner-card';
+        banner.textContent = '🏆 獲勝！';
+        winner.appendChild(banner);
+        winner.querySelector('.pk-message').textContent = '恭喜你先完成 10 題！';
+        loser.querySelector('.pk-message').textContent = '比賽結束';
+        celebrateEl.querySelector('.cheer').textContent = `${winnerSide === 'left' ? '左方' : '右方'}獲勝！好棒！`;
+        showCelebration();
+        playSuccess();
+      }
+
+      function startPK(selectedMode) {
+        ensureAudio();
+        clearTimeout(nextTimer);
+        clearPKTimers();
+        isPK = true;
+        pkMode = selectedMode;
+        mode = selectedMode;
+        pkRaceOver = false;
+        const leftQuestions = buildPKQuestions(selectedMode);
+        let rightQuestions;
+        let attempts = 0;
+        do {
+          rightQuestions = buildPKQuestions(selectedMode);
+          attempts++;
+        } while (
+          attempts < 200 &&
+          rightQuestions.some((item, index) => pkAnswerKey(item) === pkAnswerKey(leftQuestions[index]))
+        );
+        pkQuestions = { left: leftQuestions, right: rightQuestions };
+        pkStates = {
+          left: { question: 0, wrong: 0, selected: [], locked: true, lastTouchAt: 0 },
+          right: { question: 0, wrong: 0, selected: [], locked: true, lastTouchAt: 0 }
+        };
+        [pkLeft, pkRight].forEach(player => {
+          player.classList.remove('winner', 'loser');
+          player.querySelectorAll('.pk-winner-card').forEach(item => item.remove());
+        });
+        singlePanel.classList.add('hidden');
+        pkPanel.classList.remove('hidden');
+        appEl.classList.add('pk-active');
+        scorePill.classList.add('hidden');
+        startOverlay.classList.add('hidden');
+        finishOverlay.classList.add('hidden');
+        subtitleEl.textContent = selectedMode === 'basic'
+          ? '基礎版 PK賽｜左右各選兩張牌合成 10！'
+          : '進階版 PK賽｜左右各選 3～7 張牌合成 10！';
+        renderPKSide('left', true);
+        renderPKSide('right', true);
+
+        let count = 5;
+        const number = pkCountdown.querySelector('.pk-countdown-number');
+        number.classList.remove('start');
+        number.textContent = count;
+        pkCountdown.classList.remove('hidden');
+        pkCountdownTimer = setInterval(() => {
+          count--;
+          number.classList.remove('pop');
+          void number.offsetWidth;
+          number.classList.add('pop');
+          if (count > 0) {
+            number.textContent = count;
+            playTone(440, .12, 'sine', .2);
+          } else {
+            clearInterval(pkCountdownTimer);
+            pkCountdownTimer = null;
+            number.textContent = '開始';
+            number.classList.add('start');
+            playSuccess();
+            addPKTimer(() => {
+              pkCountdown.classList.add('hidden');
+              if (!isPK || pkRaceOver) return;
+              pkStates.left.locked = false;
+              pkStates.right.locked = false;
+              pkLeft.querySelector('.pk-message').textContent = '先選第一張牌吧！';
+              pkRight.querySelector('.pk-message').textContent = '先選第一張牌吧！';
+              updatePKConfirm('left');
+              updatePKConfirm('right');
+            }, 600);
+          }
+        }, 1000);
+      }
+
       function startGame(selectedMode = mode) {
         ensureAudio();
         clearTimeout(nextTimer);
+        clearPKTimers();
+        isPK = false;
+        pkRaceOver = false;
+        appEl.classList.remove('pk-active');
+        singlePanel.classList.remove('hidden');
+        pkPanel.classList.add('hidden');
+        scorePill.classList.remove('hidden');
+        celebrateEl.querySelector('.cheer').textContent = '答對了！好棒！';
         mode = selectedMode;
         question = 1;
         score = 0;
@@ -840,8 +1435,22 @@
 
       function showHome() {
         clearTimeout(nextTimer);
+        clearPKTimers();
+        isPK = false;
+        pkRaceOver = false;
+        appEl.classList.remove('pk-active');
         locked = true;
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        pkCountdown.classList.add('hidden');
+        pkPanel.classList.add('hidden');
+        singlePanel.classList.remove('hidden');
+        scorePill.classList.remove('hidden');
+        [pkLeft, pkRight].forEach(player => {
+          player.classList.remove('winner', 'loser');
+          player.querySelectorAll('.pk-winner-card').forEach(item => item.remove());
+        });
+        celebrateEl.classList.add('hidden');
+        celebrateEl.querySelector('.cheer').textContent = '答對了！好棒！';
         finishOverlay.classList.add('hidden');
         startOverlay.classList.remove('hidden');
       }
@@ -856,11 +1465,15 @@
 
       document.getElementById('basicBtn').addEventListener('click', () => startGame('basic'));
       document.getElementById('advancedBtn').addEventListener('click', () => startGame('advanced'));
+      document.getElementById('basicPkBtn').addEventListener('click', () => startPK('basic'));
+      document.getElementById('advancedPkBtn').addEventListener('click', () => startPK('advanced'));
       document.getElementById('againBtn').addEventListener('click', () => startGame(mode));
       document.getElementById('homeBtn').addEventListener('click', showHome);
       document.getElementById('topHomeBtn').addEventListener('click', showHome);
       confirmBtn.addEventListener('click', submitAdvancedAnswer);
       nextBtn.addEventListener('click', nextQuestion);
+      pkLeft.querySelector('.pk-confirm').addEventListener('click', () => checkPKAnswer('left'));
+      pkRight.querySelector('.pk-confirm').addEventListener('click', () => checkPKAnswer('right'));
 
       // 先放置一組牌，開始前畫面後方不會空白。
       const preview = makeDeck();
