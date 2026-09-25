@@ -278,12 +278,12 @@
     .mode-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      margin-top: 24px;
+      gap: 12px;
+      margin-top: 16px;
     }
     .mode-btn {
-      min-height: 142px;
-      padding: 18px 12px;
+      min-height: 112px;
+      padding: 12px;
       border: 4px solid #fff;
       border-radius: 24px;
       color: #fff;
@@ -298,6 +298,11 @@
     .mode-btn.advanced { background: linear-gradient(145deg, #9677ef, #694acb); }
     .mode-btn.pk-basic { background: linear-gradient(145deg, #4fb9ed, #247fc5); }
     .mode-btn.pk-advanced { background: linear-gradient(145deg, #ff8a68, #e65565); }
+    .mode-btn.pk-game {
+      grid-column: 1 / -1;
+      min-height: 90px;
+      background: linear-gradient(145deg, #ffbd45, #ef7d32);
+    }
     .mode-icon { display: block; margin-bottom: 7px; font-size: 42px; }
     .mode-name { display: block; font-size: 24px; }
     .mode-desc { display: block; margin-top: 6px; font-size: 14px; line-height: 1.45; opacity: .95; }
@@ -362,6 +367,32 @@
       text-align: center;
     }
     .pk-equation.empty { visibility: hidden; }
+    .pk-equation.game-question {
+      min-height: clamp(58px, 11vh, 104px);
+      padding: 5px 8px;
+      font-size: clamp(30px, 8vw, 84px);
+      line-height: 1;
+      letter-spacing: .01em;
+    }
+    .game-question-line {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .game-missing {
+      width: 1.06em;
+      height: 1.06em;
+      margin: 0 .07em;
+      display: inline-grid;
+      place-items: center;
+      border: .08em solid #ff3e59;
+      border-radius: .14em;
+      background: #fff;
+      color: #e82e4d;
+      line-height: 1;
+      box-shadow: 0 .06em 0 rgba(232,46,77,.2), 0 0 .16em rgba(255,62,89,.28);
+    }
     .pk-cards {
       min-height: 0;
       display: grid;
@@ -556,6 +587,7 @@
       .card { min-height: 0; border-width: 3px; box-shadow: 0 6px 0 var(--card-shadow), 0 9px 16px rgba(55,45,100,.13); }
       .mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
       .mode-btn { min-height: 98px; padding: 10px 6px; }
+      .mode-btn.pk-game { min-height: 82px; }
       .mode-icon { display: inline-block; margin: 0 8px 0 0; font-size: 30px; vertical-align: middle; }
       .mode-name { display: inline-block; font-size: 18px; vertical-align: middle; }
       .mode-desc { font-size: 12px; }
@@ -564,6 +596,11 @@
       .pk-name { font-size: 13px; }
       .pk-progress, .pk-tries { font-size: 11px; }
       .pk-card { font-size: clamp(23px, 5vh, 40px); border-radius: 10px; }
+      .pk-equation.game-question {
+        min-height: 48px;
+        padding: 3px;
+        font-size: clamp(25px, 8vw, 36px);
+      }
       .pk-divider span { width: 30px; height: 30px; border-width: 3px; font-size: 12px; }
     }
 
@@ -585,6 +622,7 @@
       .modal p { margin: 6px auto 12px; font-size: 16px; }
       .mode-grid { margin-top: 12px; }
       .mode-btn { min-height: 90px; padding: 10px; }
+      .mode-btn.pk-game { min-height: 76px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -623,7 +661,7 @@
       <div class="pk-player" id="pkLeft" data-side="left">
         <div class="pk-head">
           <span class="pk-name">🔵 左方玩家</span>
-          <span class="pk-progress">第 <b>1</b>／10 題</span>
+          <span class="pk-progress">第 <b>1</b>／<span class="pk-total">10</span> 題</span>
           <span class="pk-tries" aria-label="還有三次機會">♥ ♥ ♥</span>
         </div>
         <div class="pk-equation"></div>
@@ -637,7 +675,7 @@
       <div class="pk-player" id="pkRight" data-side="right">
         <div class="pk-head">
           <span class="pk-name">🔴 右方玩家</span>
-          <span class="pk-progress">第 <b>1</b>／10 題</span>
+          <span class="pk-progress">第 <b>1</b>／<span class="pk-total">10</span> 題</span>
           <span class="pk-tries" aria-label="還有三次機會">♥ ♥ ♥</span>
         </div>
         <div class="pk-equation"></div>
@@ -656,7 +694,7 @@
     <section class="modal" aria-labelledby="startTitle">
       <div class="modal-icon" aria-hidden="true">🔟</div>
       <h2 id="startTitle">選擇遊戲模式</h2>
-      <p>單人版 15 題、PK 賽 10 題！</p>
+      <p>單人版 15 題、PK 賽 10 題、遊戲版 PK 賽 20 題！</p>
       <div class="mode-grid">
         <button class="mode-btn basic" id="basicBtn" type="button">
           <span class="mode-icon" aria-hidden="true">🌱</span>
@@ -677,6 +715,11 @@
           <span class="mode-icon" aria-hidden="true">🏁</span>
           <span class="mode-name">進階版 PK賽</span>
           <span class="mode-desc">左右競速｜選 3～7 張牌</span>
+        </button>
+        <button class="mode-btn pk-game" id="gamePkBtn" type="button">
+          <span class="mode-icon" aria-hidden="true">🎮</span>
+          <span class="mode-name">遊戲版 PK賽</span>
+          <span class="mode-desc">左右競速｜20 題找出缺少的數字</span>
         </button>
       </div>
     </section>
@@ -702,6 +745,7 @@
 
       const TOTAL = 15;
       const MAX_WRONG = 3;
+      const PK_TOTALS = { basic: 10, advanced: 10, game: 20 };
       const palette = [
         ['#ff817c','#d95f64'], ['#5bc5ed','#3495bd'], ['#8b72ed','#684fc4'],
         ['#ffb84f','#da8a27'], ['#50c98a','#2f9f68'], ['#ed72b1','#c64c8c']
@@ -1100,7 +1144,28 @@
         return side === 'left' ? pkLeft : pkRight;
       }
 
+      function buildGamePKSchedule(blockedSchedule = []) {
+        const schedule = [];
+        const numbers = Array.from({ length: 9 }, (_, index) => index + 1);
+        while (schedule.length < PK_TOTALS.game) {
+          const recentPrompts = schedule.slice(-3).map(item => item.prompt);
+          const blockedPrompt = blockedSchedule[schedule.length]?.prompt;
+          const choices = numbers.filter(number =>
+            !recentPrompts.includes(number) && number !== blockedPrompt
+          );
+          const prompt = choices[Math.floor(Math.random() * choices.length)];
+          schedule.push({
+            prompt,
+            answer: 10 - prompt,
+            values: [...numbers],
+            pair: [9 - prompt]
+          });
+        }
+        return schedule;
+      }
+
       function buildPKQuestions(selectedMode) {
+        if (selectedMode === 'game') return buildGamePKSchedule();
         if (selectedMode === 'basic') {
           answerHistory = [];
           return Array.from({ length: 10 }, () => {
@@ -1115,6 +1180,7 @@
       }
 
       function pkAnswerKey(questionData) {
+        if (typeof questionData.prompt === 'number') return `${questionData.prompt}+${questionData.answer}`;
         return questionData.pair
           .map(index => questionData.values[index])
           .sort((a, b) => a - b)
@@ -1133,6 +1199,18 @@
         const state = pkStates[side];
         const player = getPKPlayer(side);
         const equation = player.querySelector('.pk-equation');
+        const questionData = pkQuestions[side][state.question];
+        equation.classList.toggle('game-question', pkMode === 'game');
+        if (pkMode === 'game') {
+          if (state.selected.length === 0) {
+            equation.innerHTML = `<span class="game-question-line">${questionData.prompt}＋<span class="game-missing">？</span>＝10</span>`;
+          } else {
+            const selectedValue = questionData.values[state.selected[0]];
+            equation.textContent = `${questionData.prompt}＋${selectedValue}＝${questionData.prompt + selectedValue}`;
+          }
+          equation.classList.remove('empty');
+          return;
+        }
         if (state.selected.length === 0) {
           equation.textContent = pkMode === 'basic' ? '？＋？＝10' : '';
           equation.classList.toggle('empty', pkMode === 'advanced');
@@ -1166,9 +1244,16 @@
         state.locked = keepLocked || pkRaceOver;
         state.lastTouchAt = 0;
         player.querySelector('.pk-progress b').textContent = state.question + 1;
-        player.querySelector('.pk-message').textContent = keepLocked ? '準備開始！' : '先選第一張牌吧！';
+        player.querySelector('.pk-message').textContent = keepLocked
+          ? '準備開始！'
+          : (pkMode === 'game' ? '請選出缺少的數字！' : '先選第一張牌吧！');
         const equation = player.querySelector('.pk-equation');
-        equation.textContent = pkMode === 'basic' ? '？＋？＝10' : '';
+        equation.classList.toggle('game-question', pkMode === 'game');
+        if (pkMode === 'game') {
+          equation.innerHTML = `<span class="game-question-line">${questionData.prompt}＋<span class="game-missing">？</span>＝10</span>`;
+        } else {
+          equation.textContent = pkMode === 'basic' ? '？＋？＝10' : '';
+        }
         equation.classList.toggle('empty', pkMode === 'advanced');
         const confirm = player.querySelector('.pk-confirm');
         confirm.classList.toggle('show', pkMode === 'advanced');
@@ -1206,6 +1291,14 @@
         if (!state || state.locked || pkRaceOver) return;
         const number = pkQuestions[side][state.question].values[index];
         speakNumber(number);
+        if (pkMode === 'game') {
+          state.selected = [index];
+          button.classList.add('selected');
+          playTone(520, .09, 'sine', .16);
+          updatePKEquation(side);
+          checkPKAnswer(side);
+          return;
+        }
         if (state.selected.includes(index)) {
           state.selected = state.selected.filter(item => item !== index);
           button.classList.remove('selected');
@@ -1254,9 +1347,11 @@
         const values = state.selected.map(index => questionData.values[index]);
         const total = values.reduce((sum, value) => sum + value, 0);
         if (pkMode === 'basic') player.querySelector('.pk-equation').textContent = `${values.join('＋')}＝${total}`;
-        const correct = pkMode === 'basic'
-          ? state.selected.length === 2 && total === 10
-          : state.selected.length >= 3 && state.selected.length <= 7 && total === 10;
+        const correct = pkMode === 'game'
+          ? state.selected.length === 1 && values[0] === questionData.answer
+          : (pkMode === 'basic'
+              ? state.selected.length === 2 && total === 10
+              : state.selected.length >= 3 && state.selected.length <= 7 && total === 10);
 
         if (correct) {
           state.selected.forEach(index => cards.children[index].classList.add('correct'));
@@ -1303,7 +1398,7 @@
         if (pkRaceOver) return;
         const state = pkStates[side];
         state.question++;
-        if (state.question >= 10) {
+        if (state.question >= PK_TOTALS[pkMode]) {
           finishPK(side);
         } else {
           renderPKSide(side);
@@ -1326,7 +1421,7 @@
         banner.className = 'pk-winner-card';
         banner.textContent = '🏆 獲勝！';
         winner.appendChild(banner);
-        winner.querySelector('.pk-message').textContent = '恭喜你先完成 10 題！';
+        winner.querySelector('.pk-message').textContent = `恭喜你先完成 ${PK_TOTALS[pkMode]} 題！`;
         loser.querySelector('.pk-message').textContent = '比賽結束';
         celebrateEl.querySelector('.cheer').textContent = `${winnerSide === 'left' ? '左方' : '右方'}獲勝！好棒！`;
         showCelebration();
@@ -1344,13 +1439,17 @@
         const leftQuestions = buildPKQuestions(selectedMode);
         let rightQuestions;
         let attempts = 0;
-        do {
-          rightQuestions = buildPKQuestions(selectedMode);
-          attempts++;
-        } while (
-          attempts < 200 &&
-          rightQuestions.some((item, index) => pkAnswerKey(item) === pkAnswerKey(leftQuestions[index]))
-        );
+        if (selectedMode === 'game') {
+          rightQuestions = buildGamePKSchedule(leftQuestions);
+        } else {
+          do {
+            rightQuestions = buildPKQuestions(selectedMode);
+            attempts++;
+          } while (
+            attempts < 200 &&
+            rightQuestions.some((item, index) => pkAnswerKey(item) === pkAnswerKey(leftQuestions[index]))
+          );
+        }
         pkQuestions = { left: leftQuestions, right: rightQuestions };
         pkStates = {
           left: { question: 0, wrong: 0, selected: [], locked: true, lastTouchAt: 0 },
@@ -1368,7 +1467,12 @@
         finishOverlay.classList.add('hidden');
         subtitleEl.textContent = selectedMode === 'basic'
           ? '基礎版 PK賽｜左右各選兩張牌合成 10！'
-          : '進階版 PK賽｜左右各選 3～7 張牌合成 10！';
+          : (selectedMode === 'advanced'
+              ? '進階版 PK賽｜左右各選 3～7 張牌合成 10！'
+              : '遊戲版 PK賽｜從九宮格找出缺少的數字！');
+        document.querySelectorAll('.pk-total').forEach(item => {
+          item.textContent = PK_TOTALS[selectedMode];
+        });
         renderPKSide('left', true);
         renderPKSide('right', true);
 
@@ -1396,8 +1500,9 @@
               if (!isPK || pkRaceOver) return;
               pkStates.left.locked = false;
               pkStates.right.locked = false;
-              pkLeft.querySelector('.pk-message').textContent = '先選第一張牌吧！';
-              pkRight.querySelector('.pk-message').textContent = '先選第一張牌吧！';
+              const startMessage = selectedMode === 'game' ? '請選出缺少的數字！' : '先選第一張牌吧！';
+              pkLeft.querySelector('.pk-message').textContent = startMessage;
+              pkRight.querySelector('.pk-message').textContent = startMessage;
               updatePKConfirm('left');
               updatePKConfirm('right');
             }, 600);
@@ -1467,6 +1572,7 @@
       document.getElementById('advancedBtn').addEventListener('click', () => startGame('advanced'));
       document.getElementById('basicPkBtn').addEventListener('click', () => startPK('basic'));
       document.getElementById('advancedPkBtn').addEventListener('click', () => startPK('advanced'));
+      document.getElementById('gamePkBtn').addEventListener('click', () => startPK('game'));
       document.getElementById('againBtn').addEventListener('click', () => startGame(mode));
       document.getElementById('homeBtn').addEventListener('click', showHome);
       document.getElementById('topHomeBtn').addEventListener('click', showHome);
